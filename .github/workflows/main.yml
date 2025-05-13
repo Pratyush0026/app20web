@@ -41,7 +41,7 @@ jobs:
 
           # Connect to EC2, remove the old build, and copy the new build
           ssh -o StrictHostKeyChecking=no -i key.pem $SERVER "sudo rm -rf $DEPLOY_DIR/*"
-          scp -o StrictHostKeyChecking=no -i key.pem -r ./build/* $SERVER:$DEPLOY_DIR
+          scp -o StrictHostKeyChecking=no -i key.pem -r ./dist/* $SERVER:$DEPLOY_DIR
 
       # Step 6: 
       - name: Reload Nginx
