@@ -1,0 +1,50 @@
+name: CI/CD Workflow for app20Bajaj
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Step 3
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4 
+      - name: Build the app
+        run: CI=false npm run build --no-ci
+
+      # Step 5 
+      - name: Deploy to EC2
+        run: |
+          DEPLOY_DIR="/var/www/html/app20dashboard/"
+          PEM_FILE="${{ secrets.EC2_KEY }}"
+          SERVER="${{ secrets.EC2_USER }}@${{ secrets.EC2_IP_ADDRESS }}"
+          
+          # Save the PEM key to a file
+          echo "$PEM_FILE" > key.pem
+          chmod 600 key.pem
+
+          # Connect to EC2, remove the old build, and copy the new build
+          ssh -o StrictHostKeyChecking=no -i key.pem $SERVER "sudo rm -rf $DEPLOY_DIR/*"
+          scp -o StrictHostKeyChecking=no -i key.pem -r ./build/* $SERVER:$DEPLOY_DIR
+
+      # Step 6: 
+      - name: Reload Nginx
+        run: |
+          SERVER="${{ secrets.EC2_USER }}@${{ secrets.EC2_IP_ADDRESS }}"
+          ssh -o StrictHostKeyChecking=no -i key.pem $SERVER "sudo systemctl reload nginx"
