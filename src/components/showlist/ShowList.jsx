@@ -7,39 +7,36 @@ import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
 const ShowList = () => {
-  const [imageData, setImageData] = useState([]);
-  const [chunkedData, setChunkedData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const params = useParams();
-  const imagesPerRow = 7;
-  const rowsPerPage = 2;
-  const navigate = useNavigate();
+    const [imageData, setImageData] = useState([]);
+    const [chunkedData, setChunkedData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const params = useParams();
+    const imagesPerRow = 7;
+    const rowsPerPage = 2;
+    const navigate = useNavigate()
 
   useEffect(() => {
     fetchData();
   }, [params.offer]);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `https://backend.app20.in/api/form/get-form-entries/?name=${params.offer.trim()}`,
-        {
-          withCredentials: true,
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`https://backend.app20.in/api/form/get-form-entries/?name=${(params.offer.trim())}`, {
+                withCredentials: true,
+            });
+            const data = response.data || [];
+            setImageData(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            navigate("/login")
+            toast.success('Load data failed');
+        } finally {
+            setLoading(false);
         }
-      );
-      const data = response.data || [];
-      setImageData(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      navigate("/login");
-      toast.success("Load data failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   useEffect(() => {
     const chunks = [];
@@ -90,35 +87,29 @@ const ShowList = () => {
 
       const apiCalls = [];
 
-      if (acceptedIds.length > 0) {
-        apiCalls.push(
-          axios.post(
-            "https://backend.app20.in/api/form/bulk-update-status/",
-            {
-              ids: acceptedIds,
-              status: "paid",
-            },
-            {
-              withCredentials: true,
+            if (acceptedIds.length > 0) {
+                apiCalls.push(
+                    axios.post('https://backend.app20.in/api/form/bulk-update-status/', {
+                        ids: acceptedIds,
+                        status: "paid"
+                    },
+                        {
+                            withCredentials: true,
+                        })
+                );
             }
-          )
-        );
-      }
 
-      if (rejectedIds.length > 0) {
-        apiCalls.push(
-          axios.post(
-            "https://backend.app20.in/api/form/bulk-update-status/",
-            {
-              ids: rejectedIds,
-              status: "rejected",
-            },
-            {
-              withCredentials: true,
+            if (rejectedIds.length > 0) {
+                apiCalls.push(
+                    axios.post('https://backend.app20.in/api/form/bulk-update-status/', {
+                        ids: rejectedIds,
+                        status: "rejected"
+                    },
+                        {
+                            withCredentials: true,
+                        })
+                );
             }
-          )
-        );
-      }
 
       if (apiCalls.length > 0) {
         await Promise.all(apiCalls);
@@ -146,76 +137,81 @@ const ShowList = () => {
     currentPage * rowsPerPage
   );
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <FaSpinner className="animate-spin text-4xl text-indigo-600" />
-        <span className="ml-2 text-gray-700 text-2xl">Loading...</span>
-      </div>
-    );
-  }
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <FaSpinner className="animate-spin text-4xl text-indigo-600" />
+                <span className="ml-2 text-gray-700 text-2xl">Loading...</span>
+            </div>
+        );
+    }
+    const displaydate = (data) => {
+        const dateObj = new Date(data);
+        const date = dateObj.toISOString().split('T')[0];
+        return date;
+    }
+    const displaytime = (data) => {
+        const dateObj = new Date(data);
+        const time = dateObj.toTimeString().split(' ')[0];
+        return time;
+    }
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Image Review</h1>
 
-      {currentRows.map((row, rowIndex) => (
-        <div key={rowIndex} className="mb-8">
-          <div className="flex gap-4 mb-2">
-            {row.map((item, colIndex) => (
-              <div
-                key={colIndex}
-                className={`w-[200px] border-2 rounded-lg shadow-md ${
-                  item.status === "pending"
-                    ? "border-[#000000]"
-                    : item.status === "accepted"
-                    ? "border-[#00ff00]"
-                    : "border-[#ff0000]"
-                }`}
-              >
-                <div className="relative h-[87%]">
-                  <img
-                    src={`${item.image}`}
-                    alt={`Image ${
-                      ((currentPage - 1) * rowsPerPage + rowIndex) *
-                        imagesPerRow +
-                      colIndex +
-                      1
-                    }`}
-                    className="w-full h-[100%] rounded-t-md"
-                  />
-                </div>
-                <div className="flex justify-center items-center p-1 bg-white h-[10%]">
-                  <div className="grid grid-cols-2 gap-2 h-[100%] w-[100%]">
-                    <button
-                      onClick={() =>
-                        handleImageAction(rowIndex, colIndex, "accepted")
-                      }
-                      className={`flex justify-center item-center py-2 px-4 rounded ${
-                        item.status === "accepted"
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-100 hover:bg-green-100"
-                      }`}
-                    >
-                      <IoMdCheckmark />
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleImageAction(rowIndex, colIndex, "rejected")
-                      }
-                      className={`flex justify-center item-center py-2 px-4 rounded ${
-                        item.status === "rejected"
-                          ? "bg-red-600 text-white"
-                          : "bg-gray-100 hover:bg-red-100"
-                      }`}
-                    >
-                      <RxCross2 />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+            {currentRows.map((row, rowIndex) => (
+                <div key={rowIndex} className="mb-8">
+                    <div className="flex gap-4 mb-2">
+                        {row.map((item, colIndex) => (
+                            <div className="flex flex-col">
+                                <div className='flex justify-between w-[200px]'>
+                                    <p className='px-1'>{displaydate(item.created_at)} </p>
+                                    <p className='px-1'>{displaytime(item.created_at)}</p>
+                                </div>
+                                <div
+                                    key={colIndex}
+                                    className={`w-[200px] h-[500px] border-2 rounded-lg shadow-md ${item.status === "pending"
+                                        ? "border-[#000000]"
+                                        : item.status === "accepted"
+                                            ? "border-[#00ff00]"
+                                            : "border-[#ff0000]"
+                                        }`}
+                                >
+
+                                    <div className="relative h-[87%]">
+                                        <img
+                                            src={`${item.image}`}
+                                            alt={`Image ${((currentPage - 1) * rowsPerPage + rowIndex) * imagesPerRow + colIndex + 1}`}
+                                            className="w-full h-[100%] rounded-t-md"
+                                        />
+                                    </div>
+                                    <div className="flex justify-center items-center p-1 bg-white h-[10%]">
+                                        <div className="grid grid-cols-2 gap-2 h-[100%] w-[100%]">
+                                            <button
+                                                onClick={() => handleImageAction(rowIndex, colIndex, "accepted")}
+                                                className={`flex justify-center item-center py-2 px-4 rounded ${item.status === "accepted"
+                                                    ? "bg-green-600 text-white"
+                                                    : "bg-gray-100 hover:bg-green-100"
+                                                    }`}
+                                            >
+                                                <IoMdCheckmark />
+                                            </button>
+                                            <button
+                                                onClick={() => handleImageAction(rowIndex, colIndex, "rejected")}
+                                                className={`flex justify-center item-center py-2 px-4 rounded ${item.status === "rejected"
+                                                    ? "bg-red-600 text-white"
+                                                    : "bg-gray-100 hover:bg-red-100"
+                                                    }`}
+                                            >
+                                                <RxCross2 />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
           <div className="flex justify-end gap-3 mt-2">
             <span className="text-sm font-medium text-gray-700 self-center">
