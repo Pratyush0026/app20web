@@ -10,15 +10,15 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     // Check if token exists first
     const token = localStorage.getItem('accessToken');
     if (!token) {
-        navigate("/login");
-        return;
+      navigate("/login");
+      return;
     }
-    
+
     fetchOffers();
   }, []);
 
@@ -27,7 +27,7 @@ const Home = () => {
     try {
       // Get token from localStorage
       const token = localStorage.getItem('accessToken');
-      
+
       // Use axios with explicit headers
       const response = await axios.get('https://backend.app20.in/api/form/app-details/', {
         headers: {
@@ -41,7 +41,7 @@ const Home = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching offers:', err);
-      
+
       // Handle 401 errors
       if (err.response && err.response.status === 401) {
         // Try to refresh the token
@@ -56,11 +56,11 @@ const Home = () => {
               }
             }
           );
-          
+
           if (refreshResponse.status === 200) {
             // Store new access token
             localStorage.setItem('accessToken', refreshResponse.data.access);
-            
+
             // Try the original request again
             const newToken = refreshResponse.data.access;
             const retryResponse = await axios.get('https://backend.app20.in/api/form/app-details/', {
@@ -70,7 +70,7 @@ const Home = () => {
               },
               withCredentials: true
             });
-            
+
             setOffers(retryResponse.data);
             setError(null);
             return;
@@ -83,13 +83,13 @@ const Home = () => {
           navigate("/login");
         }
       }
-      
+
       setError('Failed to load offers. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
-  
+
   function extractName(input) {
     return input.replace(/\s*Form\s*$/, '');
   }
@@ -111,17 +111,17 @@ const Home = () => {
             {/* <p className="mt-2 text-lg text-gray-600">Explore all available offers and rewards</p> */}
           </div>
           <div className="flex items-center space-x-4">
-            <button 
-              className='flex items-center bg-indigo-700 hover:bg-indigo-600 px-5 py-2 text-white text-[20px] font-bold rounded-4xl cursor-pointer' 
+            <button
+              className='flex items-center bg-indigo-700 hover:bg-indigo-600 px-5 py-2 text-white text-[20px] font-bold rounded-4xl cursor-pointer'
               onClick={() => navigate("/analytics")}
             >
               See Analytics <RiArrowRightUpLine className='text-[25px]' />
             </button>
-            <button 
-              className='flex items-center bg-red-600 hover:bg-red-700 px-5 py-2 text-white text-[20px] font-bold rounded-4xl cursor-pointer' 
+            <button
+              className='flex items-center bg-red-600 hover:bg-red-700 px-5 py-2 text-white text-[20px] font-bold rounded-4xl cursor-pointer'
               onClick={handleLogout}
             >
-              Logout
+              Logout <RiArrowRightUpLine className='text-[25px]' />
             </button>
           </div>
         </header>
@@ -151,8 +151,9 @@ const Home = () => {
                     <tr>
                       <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                       <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reward</th>
-                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submissions</th>
-                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Today</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Submissions</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pending</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Today Submissions</th>
                       <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accepted Today</th>
                       <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rejected Today</th>
                       <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -164,6 +165,7 @@ const Home = () => {
                         <td className="py-4 px-4 font-medium">{extractName(offer.name)}</td>
                         <td className="py-4 px-4 text-indigo-600 font-medium">₹{offer.amount}</td>
                         <td className="py-4 px-4">{offer.submissions.toLocaleString()}</td>
+                        <td className="py-4 px-4">{offer.pending}</td>
                         <td className="py-4 px-4">{offer.submissions_today}</td>
                         <td className="py-4 px-4">{offer.accepted_today}</td>
                         <td className="py-4 px-4">{offer.rejected_today}</td>
