@@ -1,3 +1,4 @@
+
 // import React, { useState, useEffect } from 'react';
 // import { useNavigate, useParams } from 'react-router-dom';
 // import { IoMdCheckmark } from "react-icons/io";
@@ -278,6 +279,7 @@ import { toast } from 'react-hot-toast';
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { RiArrowRightUpLine } from 'react-icons/ri';
 
+
 const ShowList = () => {
     const [imageData, setImageData] = useState([]);
     const [chunkedData, setChunkedData] = useState([]);
@@ -292,10 +294,12 @@ const ShowList = () => {
     const imagesPerPage = imagesPerRow * rowsPerPage;
     const navigate = useNavigate();
 
+
     useEffect(() => {
         fetchAppDetails();
         fetchData();
     }, [params.offer, currentPage]);
+
 
     const fetchAppDetails = async () => {
         try {
@@ -339,27 +343,30 @@ const ShowList = () => {
         }
     };
 
-    useEffect(() => {
-        const chunks = [];
-        for (let i = 0; i < imageData.length; i += imagesPerRow) {
-            chunks.push(imageData.slice(i, i + imagesPerRow));
-        }
-        setChunkedData(chunks);
-    }, [imageData]);
+  useEffect(() => {
+    const chunks = [];
+    for (let i = 0; i < imageData.length; i += imagesPerRow) {
+      chunks.push(imageData.slice(i, i + imagesPerRow));
+    }
+    setChunkedData(chunks);
+  }, [imageData]);
+
 
     const handleImageAction = (rowIndex, colIndex, action) => {
         const newData = [...imageData];
         const actualRowIndex = rowIndex;
         const flatIndex = actualRowIndex * imagesPerRow + colIndex;
 
-        if (flatIndex < newData.length) {
-            newData[flatIndex] = {
-                ...newData[flatIndex],
-                status: action
-            };
-            setImageData(newData);
-        }
-    };
+
+
+    if (flatIndex < newData.length) {
+      newData[flatIndex] = {
+        ...newData[flatIndex],
+        status: action,
+      };
+      setImageData(newData);
+    }
+  };
 
     const handleRowAction = (rowIndex, action) => {
         const newData = [...imageData];
@@ -367,26 +374,27 @@ const ShowList = () => {
         const startIndex = actualRowIndex * imagesPerRow;
         const endIndex = Math.min(startIndex + imagesPerRow, imageData.length);
 
-        for (let i = startIndex; i < endIndex; i++) {
-            newData[i] = { ...newData[i], status: action };
-        }
 
-        setImageData(newData);
-    };
+    for (let i = startIndex; i < endIndex; i++) {
+      newData[i] = { ...newData[i], status: action };
+    }
 
-    const handleSave = async (continueToNext = false) => {
-        try {
-            setSaving(true);
+    setImageData(newData);
+  };
 
-            const acceptedIds = imageData
-                .filter(item => item.status === "accepted")
-                .map(item => item.id);
+  const handleSave = async (continueToNext = false) => {
+    try {
+      setSaving(true);
 
-            const rejectedIds = imageData
-                .filter(item => item.status === "rejected")
-                .map(item => item.id);
+      const acceptedIds = imageData
+        .filter((item) => item.status === "accepted")
+        .map((item) => item.id);
 
-            const apiCalls = [];
+      const rejectedIds = imageData
+        .filter((item) => item.status === "rejected")
+        .map((item) => item.id);
+
+      const apiCalls = [];
 
             if (acceptedIds.length > 0) {
                 apiCalls.push(
@@ -412,9 +420,9 @@ const ShowList = () => {
                 );
             }
 
-            if (apiCalls.length > 0) {
-                await Promise.all(apiCalls);
-            }
+      if (apiCalls.length > 0) {
+        await Promise.all(apiCalls);
+      }
 
             if (continueToNext) {
                 if (currentPage < totalPages) {
@@ -436,9 +444,11 @@ const ShowList = () => {
         }
     };
 
-    const handleSaveAndContinue = () => {
-        handleSave(true);
-    };
+
+  const handleSaveAndContinue = () => {
+    handleSave(true);
+  };
+
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
@@ -568,9 +578,9 @@ const ShowList = () => {
         return time;
     }
 
-    return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-6">Image Review</h1>
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Image Review</h1>
 
             {currentRows.map((row, rowIndex) => (
                 <div key={rowIndex} className="mb-8">
@@ -717,8 +727,11 @@ const ShowList = () => {
                     </div>
                 </div>
             )}
+
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default ShowList;
