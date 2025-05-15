@@ -343,13 +343,13 @@ const ShowList = () => {
         }
     };
 
-  useEffect(() => {
-    const chunks = [];
-    for (let i = 0; i < imageData.length; i += imagesPerRow) {
-      chunks.push(imageData.slice(i, i + imagesPerRow));
-    }
-    setChunkedData(chunks);
-  }, [imageData]);
+    useEffect(() => {
+        const chunks = [];
+        for (let i = 0; i < imageData.length; i += imagesPerRow) {
+            chunks.push(imageData.slice(i, i + imagesPerRow));
+        }
+        setChunkedData(chunks);
+    }, [imageData]);
 
 
     const handleImageAction = (rowIndex, colIndex, action) => {
@@ -359,14 +359,14 @@ const ShowList = () => {
 
 
 
-    if (flatIndex < newData.length) {
-      newData[flatIndex] = {
-        ...newData[flatIndex],
-        status: action,
-      };
-      setImageData(newData);
-    }
-  };
+        if (flatIndex < newData.length) {
+            newData[flatIndex] = {
+                ...newData[flatIndex],
+                status: action,
+            };
+            setImageData(newData);
+        }
+    };
 
     const handleRowAction = (rowIndex, action) => {
         const newData = [...imageData];
@@ -375,26 +375,26 @@ const ShowList = () => {
         const endIndex = Math.min(startIndex + imagesPerRow, imageData.length);
 
 
-    for (let i = startIndex; i < endIndex; i++) {
-      newData[i] = { ...newData[i], status: action };
-    }
+        for (let i = startIndex; i < endIndex; i++) {
+            newData[i] = { ...newData[i], status: action };
+        }
 
-    setImageData(newData);
-  };
+        setImageData(newData);
+    };
 
-  const handleSave = async (continueToNext = false) => {
-    try {
-      setSaving(true);
+    const handleSave = async (continueToNext = false) => {
+        try {
+            setSaving(true);
 
-      const acceptedIds = imageData
-        .filter((item) => item.status === "accepted")
-        .map((item) => item.id);
+            const acceptedIds = imageData
+                .filter((item) => item.status === "accepted")
+                .map((item) => item.id);
 
-      const rejectedIds = imageData
-        .filter((item) => item.status === "rejected")
-        .map((item) => item.id);
+            const rejectedIds = imageData
+                .filter((item) => item.status === "rejected")
+                .map((item) => item.id);
 
-      const apiCalls = [];
+            const apiCalls = [];
 
             if (acceptedIds.length > 0) {
                 apiCalls.push(
@@ -420,9 +420,9 @@ const ShowList = () => {
                 );
             }
 
-      if (apiCalls.length > 0) {
-        await Promise.all(apiCalls);
-      }
+            if (apiCalls.length > 0) {
+                await Promise.all(apiCalls);
+            }
 
             if (continueToNext) {
                 if (currentPage < totalPages) {
@@ -445,9 +445,9 @@ const ShowList = () => {
     };
 
 
-  const handleSaveAndContinue = () => {
-    handleSave(true);
-  };
+    const handleSaveAndContinue = () => {
+        handleSave(true);
+    };
 
 
     const handlePageChange = (page) => {
@@ -578,9 +578,9 @@ const ShowList = () => {
         return time;
     }
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Image Review</h1>
+    return (
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-6">Image Review</h1>
 
             {currentRows.map((row, rowIndex) => (
                 <div key={rowIndex} className="mb-8">
@@ -729,9 +729,8 @@ const ShowList = () => {
             )}
 
         </div>
-      )}
-    </div>
-  );
+    )
+
 };
 
 export default ShowList;
