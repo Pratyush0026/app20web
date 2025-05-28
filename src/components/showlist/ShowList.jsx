@@ -360,9 +360,11 @@ const ShowList = () => {
 
 
         if (flatIndex < newData.length) {
+            const currentItem = newData[flatIndex];
+            const newStatus = currentItem.status === action ? "pending" : action;
             newData[flatIndex] = {
                 ...newData[flatIndex],
-                status: action,
+                status: newStatus,
             };
             setImageData(newData);
         }
@@ -429,10 +431,10 @@ const ShowList = () => {
                     setCurrentPage(prevPage => prevPage + 1);
                 } else {
                     await fetchData();
-                    toast.success('All pages processed!');
+                    // toast.success('All pages processed!');
                 }
             } else {
-                toast.success('Successfully saved!');
+                // toast.success('Successfully saved!');
                 await fetchData();
                 await fetchAppDetails();
             }
